@@ -189,6 +189,45 @@ public:
         }
         
         return  correctorder;
+    }
+    
+    void print(bool lampOn) const {
+        std::cout << "\n";
+        
+        for (int row = 0; row < rows; ++row) {
+            for (int column = 0; column < columns; ++column){
+                int current = getId(row, column);
+                
+                if (current == playerposition()) {
+                    std:: cout << '@';
+                }
+                
+                else if (!lampOn){
+                    std::cout << '?';
+                }
+                else if (current == symbols) {
+                    std::cout << 'S';
+                }
+                else if (current == note){
+                    std::cout << 'N';
+                }
+                else if (current == drawer){
+                    std::cout << 'D';
+                }
+                else if (current == Exit) {
+                    std::cout << 'E';
+                }
+                else {
+                    std::cout << tiles[row][column];
+                }
+            }
+            std::cout << '\n';
+        }
+        if (lampOn){
+            std::cout << "\n@ player | S symbols | N note";
+            std::cout << " | D drawer | E exit\n";
+        }
+    }
         
     bool saveimage(const std::string&message) const {
         std::ofstream image ("lumenmap.svg");
