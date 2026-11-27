@@ -14,18 +14,18 @@
 const int rows = 8;
 const int columns = 22;
 const int cells = rows * columns;
-const int start = columns + 1;
-const int symbols = columns +19;
+const int start = 1*  columns + 1;
+const int symbols = 1* columns +19;
 const int note = 6 * columns + 2;
 const int drawer = 6 * columns +19;
-const int Exit = columns +2;
-const int infinity = std::numeric_limits<int>::max()/4;
+const int Exit = 1* columns +2;
+const int infinity = 1000000;
 
 class Map{
 private:
     // * is wall
     // . is walkable floor
-    char tiles[8][23] = {
+    char tiles[rows][columns + 1] = {
         "**********************",
         "*....................*",
         "*........*......*....*",
@@ -48,9 +48,9 @@ private:
     }
     
         void makinggraph(){
-        connections.resize(rows * columns);
-        int rowchange[] = {-1, 1, 0, 0};
-        int columnchange[] = {0, 0, -1, 1};
+        connections.resize(cells);
+        int rowchange[4] = {-1, 1, 0, 0};
+        int columnchange[4] = {0, 0, -1, 1};
         
         for (int row = 0; row < rows; ++row) {
             for (int column = 0; column < columns; ++column) {
@@ -76,6 +76,19 @@ public:
         
         makinggraph();
     }
+    bool iswalkable(int row, int column) const {
+        if(row<0 || row>= rows){
+            return false;
+        }
+        if (column <0 || column>= columns){
+            return false;
+        }
+        return tiles[row][column] == '.';
+    }
+    
+    int playerposition() const{
+        return getId(playerrow, playercolumn);
+    }
     
     bool moveplayer(const std::string& direction){
         int nextrow = playerrow;
@@ -84,25 +97,30 @@ public:
         if (direction == "up"){
             --nextrow;
         } 
+        
         else if (direction == "down") {
             ++nextrow;
             
         } 
+        
         else if (direction == "left") {
             --nextcolumn;
         }
+        
         else if (direction == "right") {
             ++nextcolumn;
             
         }
+        
         else {
             return false;
         }
+        
         if (!iswalkable(nextrow, nextcolumn)){
             return false;
         }
         
-        int current = getId(playerrow, playercolumn);
+        int current = playerposition();
         int destination = getId(nextrow, nextcolumn);
         
         for (int next : connections[current]){
@@ -115,13 +133,6 @@ public:
         return false;
     }
 
-    bool iswalkable (int row, int column) const {
-        if (row < 0 || row >= rows ||
-            column < 0 || column >= columns) {
-            return false;
-        }
-        return tiles[row][column] == '.';
-    }
     bool saveimage(const std::string&message) const {
         std::ofstream image ("lumenmap.svg");
         
