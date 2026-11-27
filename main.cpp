@@ -132,7 +132,64 @@ public:
         }
         return false;
     }
-
+    std::vector<int> BFS (int destination) const {
+        std::vector<int>(route);
+        
+        if (destination < 0 || destination>= cells){
+            return route;
+        }
+        
+        int destinationrow = destination/columns;
+        int destinationcolumn = destination % columns;
+        
+        if (!iswalkable(destinationrow, destinationcolumn)){
+            return route;
+        }
+        std::vector<int> distance(cells,infinity);
+        std::vector<int> previous(cells, -1);
+        
+        std::queue<int>pending;
+        
+        int beginning = playerposition();
+        
+        distance[beginning] = 0;
+        pending.push(beginning);
+        
+        while (!pending.empty()) {
+            int current = pending.front();
+            pending.pop();
+            
+            for (int next : connections [current]) {
+                if (distance[next] == infinity) {
+                    distance[next] = distance[current] +1;
+                    previous[next] = current;
+                    pending.push(next);
+                }
+            }
+        }
+        
+        if (distance[destination] == infinity) {
+            return route;
+        }
+        
+        int current = destination;
+        while (current != beginning) {
+            route.push_back(current);
+            current = previous[current];
+        }
+        
+        route.push_back(beginning);
+        
+        std::vector<int> correctorder;
+        
+        for (int i = static_cast<int>(route.size()) - 1;
+             i >= 0;
+             --i){
+            correctorder.push_back(route[i]);
+        }
+        
+        return  correctorder;
+        
     bool saveimage(const std::string&message) const {
         std::ofstream image ("lumenmap.svg");
         
