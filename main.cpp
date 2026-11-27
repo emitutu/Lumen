@@ -11,11 +11,21 @@
 #include <queue>
 #include <fstream>
 
+const int rows = 8;
+const int columns = 22;
+const int cells = rows * columns;
+const int start = columns + 1;
+const int symbols = columns +19;
+const int note = 6 * columns + 2;
+const int drawer = 6 * columns +19;
+const int Exit = columns +2;
+const int infinity = std::numeric_limits<int>::max()/4;
+
 class Map{
 private:
     // * is wall
     // . is walkable floor
-    std::vector <std::string> tiles = {
+    char tiles[8][23] = {
         "**********************",
         "*....................*",
         "*........*......*....*",
@@ -30,8 +40,8 @@ private:
     int playerrow = 1;
     int playercolumn = 1;
     
-    int rows;
-    int columns;
+    static const int rows = 8;
+    static const int columns= 22;
     
     int getId(int row, int column) const {
         return row * columns + column;
@@ -63,8 +73,6 @@ private:
     }
 public:
     Map(){
-        rows = static_cast<int>(tiles.size());
-        columns = static_cast<int>(tiles[0].size());
         
         makinggraph();
     }
@@ -319,7 +327,7 @@ private:
             return;
         }
         if (map.moveplayer(direction)) {
-            message = "You move   ccr" + direction + ", carrying the lamp.";
+            message = "You move " + direction + ", carrying the lamp.";
         } else {
             message = "A wall blocks your way.";
         }
@@ -401,7 +409,7 @@ int main(){
     
     <style>
 body{ margin: 0;
-padding: 20 px;
+padding: 20px;
 background: #101923;
 color: white;
 font-family: sans-serif;
@@ -409,7 +417,7 @@ font-family: sans-serif;
 img{
 display: block;
 width: 100%;
-max-width: 1320 px;
+max-width: 1320px;
 height:auto;
 margin: auto;
 }
