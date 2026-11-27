@@ -405,6 +405,7 @@ private:
     bool lampOn = false;
     bool symbolsfound = false;
     bool notefound = false;
+    bool draweropen = false;
     bool keyfound = false;
     bool escaped = false;
     
@@ -462,14 +463,31 @@ private:
                 "Count what is written, not the silence between.\n"
                 "What the guardians conceal, the lock remembers.";
         }
+            else if (position == drawer){
+                if (!draweropen) {
+                    message = "A three digit lock keeps the drawer closed.";
+                }
+                else if (!keyfound) {
+                    message = "A key lies instde the drawer. Pick 7 to take it.";
+                }
+                else{
+                    message = "The drawer is empty.";
+                }
+            }
+            else if (position == Exit) {
+                message = "There is a locked door. It needs a key.";
+            }
+            else {
+                message = "You are free to go!";
+            }
     }
-    void searchNearby() {
+        void searchNearby() {
         if (!lampFound) {
             lampFound = true;
             
            message = "You carefully feel along the floor. Your hand touches a lamp. You pick it up and find its switch.";
         } else {
-            message = "You search within reach, but find nothing else.";
+            message = "You search within reach, Look at objects to find clues.";
         }
     }
     void switchoLight(){
@@ -488,11 +506,11 @@ private:
             message = "It is too dark to walk. You need to find and switch on a light.";
             return;
         }
-            std::cout << "\nWhich direction do you want to go? up, down, left, right\n" << "> ";
+            std::cout << "\nWhich direction do you want to go? Enter up, down, left, right:\n> ";
         
         std::string direction;
+        
         if (!std::getline(std::cin, direction)) {
-            message = "No direction entered.";
             return;
         }
         if (direction !="up" && direction != "down" && direction != "left" && direction != "right") {
@@ -504,7 +522,72 @@ private:
         } else {
             message = "A wall blocks your way.";
         }
-    };
+    }
+        void openDrawer() {
+            if (!lampOn) {
+                message = "Switch on the lamp first.";
+                return;
+            }
+            
+            if (draweropen) {
+                
+                message = "The drawer is already open.";
+                return;
+            }
+            
+            if (!symbolsfound || !notefound) {
+                message = "Find and investigate both the symbols and the note first.";
+                return;
+            }
+            
+            std::cout << "\nEnter the three digit code:\n>";
+            
+            std::string answer;
+            
+            if (!std::getline(std::cin, answer)) {
+                return;
+            }
+            
+            if (answer == "859") {
+                draweropen = true;
+                message = "You hear the lock clicks. The drawer opens, and a key is inside";
+            }
+            else {
+                message = "The lock still is closed. Read again the note and try again."
+            }
+        }
+        void takekey(){
+            if (!lampOn) {
+                message = "Switch on the lamp first.";
+            }
+            else if (map.playerposition() !=drawer) {
+                message = " Go to the drawer first.";
+            }
+            else if (!draweropen) {
+                message = "Still locked.";
+            }
+            else if (keyfound) {
+                message = "You already have the ket.";
+            }
+            else {
+                keyfound = true;
+                message = "You took the key. Return to the exit.";
+            }
+        }
+        void exit(){
+            if(map.playerposition() !=Exit) {
+                message = "Go to the exit first.";
+            }
+            else if (!keyfound) {
+                message = "The door is locked, you should find the key.";
+            }
+            else {
+                escaped = true;
+                message = "The door opens. You escaped from Lumen!";
+            }
+        }
+        
+
     
 public:
     void run() {
