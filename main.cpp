@@ -435,8 +435,8 @@ private:
         std::cout << "> " ;
     }
     void lookAround() {
-        if (lampOn) {
-            message = 
+        if (!lampOn) {
+            message =
             "It is too dark. You hear water dripping nearby.";
             return;
             
@@ -445,10 +445,22 @@ private:
             if (position == symbols){
                 symbolsfound = true;
                 
+                message = 
+                "Symbols: Elephant, Horse, Saint Mary."
+                "Remember the order";
             }
-        } else {
+            else if(position == note) {
+                notefound = true;
+                
             message =
-            "You cannot see anything. Somewhere closer, water drips onto floor.";
+            "You found an old and torn note.\n\n"
+                "The Three Guardians\n\n"
+                "The first one carries memories that never fade.\n"
+                "The second one runs where freedom awaits.\n"
+                "The third one watches over theose who have have lost their way.\n\n"
+                "Within their names, three numbers sleep.\n"
+                "Count what is written, not the silence between.\n"
+                "What the guardians conceal, the lock remembers.";
         }
     }
     void searchNearby() {
