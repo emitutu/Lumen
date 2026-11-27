@@ -40,8 +40,8 @@ private:
     int playerrow = 1;
     int playercolumn = 1;
     
-    static const int rows = 8;
-    static const int columns= 22;
+    const int rows = 8;
+    const int columns= 22;
     
     int getId(int row, int column) const {
         return row * columns + column;
@@ -133,7 +133,7 @@ public:
         return false;
     }
     std::vector<int> BFS (int destination) const {
-        std::vector<int>(route);
+        std::vector<int>route;
         
         if (destination < 0 || destination>= cells){
             return route;
@@ -403,11 +403,17 @@ private:
 
     bool lampFound = false;
     bool lampOn = false;
+    bool symbolsfound = false;
+    bool notefound = false;
+    bool keyfound = false;
+    bool escaped = false;
     
     std::string message = "You wake up on a cold floor. Everything is dark. Find a lamp.";
     
     void updatemap() const {
         std::cout<< "\n" << message << "\n";
+        
+        map.print(lampOn);
         
         if (!map.saveimage(message, lampOn)) {
             std::cerr << "Cannot save lumenmap.svg.\n";
@@ -421,12 +427,25 @@ private:
         std::cout << "3. Switch on the light\n";
         std::cout << "4. Move\n";
         std::cout << "5. Quit\n";
+        std::cout << "6. Enter drawer code\n";
+        std::cout << "7. Take the key\n";
+        std::cout << "8. Open the exit\n";
+        std::cout << "9. Read your notes\n";
+        std::cout << "10. Get a direction hint\n";
         std::cout << "> " ;
     }
     void lookAround() {
         if (lampOn) {
             message = 
-            "The lamp reveals wall and open path.";
+            "It is too dark. You hear water dripping nearby.";
+            return;
+            
+            int position = map.playerposition();
+            
+            if (position == symbols){
+                symbolsfound = true;
+                
+            }
         } else {
             message =
             "You cannot see anything. Somewhere closer, water drips onto floor.";
