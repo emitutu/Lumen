@@ -231,29 +231,29 @@ public:
     
     bool saveimage(const std::string& message, bool lampOn) const {
         std::ofstream image("lumenmap.svg");
-
+        
         if (!image) {
             return false;
         }
-
+        
         const int tilesize = 60;
-
+        
         int width = columns * tilesize;
         int mapheight = rows * tilesize;
         int height = mapheight + 150;
-
+        
         image << "<svg xmlns=\"http://www.w3.org/2000/svg\" "
-              << "width=\"" << width << "\" "
-              << "height=\"" << height << "\" "
-              << "viewBox=\"0 0 " << width << " " << height << "\">\n";
-
+        << "width=\"" << width << "\" "
+        << "height=\"" << height << "\" "
+        << "viewBox=\"0 0 " << width << " " << height << "\">\n";
+        
         image << "<rect width=\"100%\" height=\"100%\" "
-              << "fill=\"#101923\"/>\n";
-
+        << "fill=\"#101923\"/>\n";
+        
         for (int row = 0; row < rows; ++row) {
             for (int column = 0; column < columns; ++column) {
                 std::string color;
-
+                
                 if (!lampOn) {
                     color = "#172331";
                 }
@@ -263,17 +263,17 @@ public:
                 else {
                     color = "#8497ad";
                 }
-
+                
                 image << "<rect x=\"" << column * tilesize
-                      << "\" y=\"" << row * tilesize
-                      << "\" width=\"" << tilesize - 1
-                      << "\" height=\"" << tilesize - 1
-                      << "\" fill=\"" << color << "\"/>\n";
-
+                << "\" y=\"" << row * tilesize
+                << "\" width=\"" << tilesize - 1
+                << "\" height=\"" << tilesize - 1
+                << "\" fill=\"" << color << "\"/>\n";
+                
                 if (lampOn) {
                     int current = getId(row, column);
                     std::string label;
-
+                    
                     if (current == symbols) {
                         label = "S";
                     }
@@ -286,45 +286,46 @@ public:
                     else if (current == Exit) {
                         label = "E";
                     }
-
+                    
                     if (!label.empty()) {
                         image << "<text x=\"" << column * tilesize + 20
-                              << "\" y=\"" << row * tilesize + 40
-                              << "\" fill=\"white\" "
-                              << "font-family=\"sans-serif\" "
-                              << "font-size=\"24\">"
-                              << label << "</text>\n";
+                        << "\" y=\"" << row * tilesize + 40
+                        << "\" fill=\"white\" "
+                        << "font-family=\"sans-serif\" "
+                        << "font-size=\"24\">"
+                        << label << "</text>\n";
                     }
                 }
             }
         }
-
+        
         int playerx = playercolumn * tilesize + tilesize / 2;
         int playery = playerrow * tilesize + tilesize / 2;
-
+        
         image << "<circle cx=\"" << playerx
-              << "\" cy=\"" << playery
-              << "\" r=\"15\" fill=\"#f7f7f7\"/>\n";
-
+        << "\" cy=\"" << playery
+        << "\" r=\"15\" fill=\"#f7f7f7\"/>\n";
+        
         image << "<rect x=\"0\" y=\"" << mapheight
-              << "\" width=\"" << width
-              << "\" height=\"150\" fill=\"#172331\"/>\n";
-
+        << "\" width=\"" << width
+        << "\" height=\"150\" fill=\"#172331\"/>\n";
+        
         image << "<text x=\"25\" y=\"" << mapheight + 35
-              << "\" fill=\"#c4b91b\" "
-              << "font-family=\"sans-serif\" font-size=\"20\">"
-              << "LUMEN</text>\n";
-
+        << "\" fill=\"#c4b91b\" "
+        << "font-family=\"sans-serif\" font-size=\"20\">"
+        << "LUMEN</text>\n";
+        
         image << "<text x=\"25\" y=\"" << mapheight + 80
-              << "\" fill=\"white\" "
-              << "font-family=\"sans-serif\" font-size=\"16\">"
-              << message << "</text>\n";
-
+        << "\" fill=\"white\" "
+        << "font-family=\"sans-serif\" font-size=\"16\">"
+        << message << "</text>\n";
+        
         image << "</svg>\n";
         image.close();
-
+        
         return !image.fail();
     }
+};
 
 class puzzlegraph {
 private:
@@ -408,7 +409,7 @@ private:
     void updatemap() const {
         std::cout<< "\n" << message << "\n";
         
-        if (!map.saveimage(message)) {
+        if (!map.saveimage(message, lampOn)) {
             std::cerr << "Cannot save lumenmap.svg.\n";
         }
     }
@@ -472,7 +473,7 @@ private:
         } else {
             message = "A wall blocks your way.";
         }
-    }
+    };
     
 public:
     void run() {
@@ -585,4 +586,4 @@ text-align: center;
     game.run();
     
     return 0;
-}
+};
