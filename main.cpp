@@ -410,9 +410,6 @@ private:
     std::string message = "You wake up on a cold floor. Everything is dark. Find a lamp.";
     
     void updatemap() const {
-        std::cout<< "\n" << message << "\n";
-        
-        map.print(lampOn);
         
         if (!map.saveimage(message, lampOn)) {
             std::cerr << "Cannot save lumenmap.svg.\n";
