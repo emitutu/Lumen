@@ -11,13 +11,13 @@
 #include <queue>
 #include <fstream>
 
-const int rows = 8;
-const int columns = 22;
+const int rows = 6;
+const int columns = 10;
 const int cells = rows * columns;
 const int start = 1*  columns + 1;
-const int symbols = 1* columns +19;
-const int note = 6 * columns + 2;
-const int drawer = 6 * columns +19;
+const int symbols = 1* columns +7;
+const int note = 4 * columns + 2;
+const int drawer = 4 * columns +7;
 const int Exit = 1* columns +2;
 const int infinity = 1000000;
 
@@ -26,14 +26,12 @@ private:
     // * is wall
     // . is walkable floor
     char tiles[rows][columns + 1] = {
-        "**********************",
-        "*....................*",
-        "*........*......*....*",
-        "*....*..........*....*",
-        "*....*......*........*",
-        "*................*...*",
-        "*....................*",
-        "**********************"
+        "**********",
+        "*........*",
+        "*...*....*",
+        "**..*....*",
+        "*....*...*",
+        "**********"
     };
     std::vector<std::vector<int>>connections;
     
