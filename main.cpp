@@ -224,6 +224,21 @@ public:
             std::cout << " | D drawer | E exit\n";
         }
     }
+    bool isnear(int destination) const {
+        int destinationrow = destination / columns;
+        int destinationcolumn = destination % columns;
+        int rowdistance = playerrow - destinationrow;
+        int columndistance = playercolumn - destinationcolumn;
+        
+        if (rowdistance < 0) {
+            rowdistance = -rowdistance;
+        }
+        
+        if (columndistance < 0) {
+            columndistance = -columndistance;
+        }
+        return rowdistance + columndistance <= 1;
+    }
     
     bool saveimage(const std::string& message, bool lampOn) const {
         std::ofstream image("lumenmap.svg");
@@ -236,7 +251,26 @@ public:
         
         int width = columns * tilesize;
         int mapheight = rows * tilesize;
-        int height = mapheight + 150;
+        std::vector<std::string> lines;
+        std::string line;
+        
+        for (char character : message){
+            if (character == '\n') {
+                lines.push_back(line);
+                line.clear();
+            }
+            else if (character == ' ' && line.size() >= 55){
+                lines.push_back(line);
+                line.clear();
+            }
+            else {
+                line += character;
+            }
+        }
+        lines.push_back(line);
+        
+        int panelheight = 90 + static_cast<int>(lines.size()*24);
+        int height = mapheight + panelheight;
         
         image << "<svg xmlns=\"http://www.w3.org/2000/svg\" "
         << "width=\"" << width << "\" "
@@ -304,17 +338,18 @@ public:
         
         image << "<rect x=\"0\" y=\"" << mapheight
         << "\" width=\"" << width
-        << "\" height=\"150\" fill=\"#172331\"/>\n";
+        << "\" height=\"" << panelheight
+        << "\" fill=\"#172331\"/>\n";
         
-        image << "<text x=\"25\" y=\"" << mapheight + 35
-        << "\" fill=\"#c4b91b\" "
-        << "font-family=\"sans-serif\" font-size=\"20\">"
-        << "LUMEN</text>\n";
+        int texty = mapheight + 75;
         
-        image << "<text x=\"25\" y=\"" << mapheight + 80
-        << "\" fill=\"white\" "
-        << "font-family=\"sans-serif\" font-size=\"16\">"
-        << message << "</text>\n";
+        for(const std::string& textline:lines) {
+            image << "<text x=\"25\" y=\"" << texty
+            << "\" fill=\"white\" "
+            << "font-family=\"sans-serif\" " << "font-size=\'13'>"
+            << textline << "</text>\n";
+            texty += 24;
+        }
         
         image << "</svg>\n";
         image.close();
@@ -435,16 +470,15 @@ private:
             return;
         }
             
-            int position = map.playerposition();
             
-            if (position == symbols){
+            if (map.isnear(symbols)){
                 symbolsfound = true;
                 
-                message = 
-                "Symbols: Elephant, Horse, Saint Mary."
-                "Remember the order";
+                message =
+                "Symbols: Elephant, Horse, Saint Mary. "
+                "Remember the order.";
             }
-            else if(position == note) {
+            else if(map.isnear(note)) {
                 notefound = true;
                 
             message =
@@ -457,7 +491,7 @@ private:
                 "Count what is written, not the silence between.\n"
                 "What the guardians conceal, the lock remembers.";
         }
-            else if (position == drawer){
+            else if (map.isnear(drawer)){
                 if (!draweropen) {
                     message = "A three digit lock keeps the drawer closed.";
                 }
@@ -468,11 +502,11 @@ private:
                     message = "The drawer is empty.";
                 }
             }
-            else if (position == Exit) {
+            else if (map.isnear(Exit)) {
                 message = "There is a locked door. It needs a key.";
             }
             else {
-                message = "You are free to go!";
+                message = "You see walls and open road. Explore the marked places.";
             }
     }
         void searchNearby() {
@@ -630,7 +664,7 @@ private:
                 message = "No route was found.";
                 return;
             }
-            if(route.size() == 1) {
+            if(map.isnear(destination)) {
                 if (destination == drawer) {
                     if (!draweropen) {
                         message = "You are at the drawer. Pick 6 to enter the code.";
@@ -668,7 +702,7 @@ private:
             int steps = static_cast<int>(route.size()) - 1;
             
             std::cout << "\nBFS shortest"<< steps << "steps.\n";
-            message = "move " + direction + " toward your next objective. ";
+            message = "move " + direction + " toward your next objective. " + std::to_string(steps) + "steps to its tile";
         }
 
     
