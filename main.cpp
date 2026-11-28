@@ -40,8 +40,6 @@ private:
     int playerrow = 1;
     int playercolumn = 1;
     
-    const int rows = 8;
-    const int columns= 22;
     
     int getId(int row, int column) const {
         return row * columns + column;
@@ -440,6 +438,7 @@ private:
             message =
             "It is too dark. You hear water dripping nearby.";
             return;
+        }
             
             int position = map.playerposition();
             
@@ -553,7 +552,7 @@ private:
                 message = "You hear the lock clicks. The drawer opens, and a key is inside";
             }
             else {
-                message = "The lock still is closed. Read again the note and try again."
+                message = "The lock still is closed. Read again the note and try again.";
             }
         }
         void takekey(){
@@ -562,6 +561,7 @@ private:
             }
             else if (map.playerposition() !=drawer) {
                 message = " Go to the drawer first.";
+                return;
             }
             else if (!draweropen) {
                 message = "Still locked.";
@@ -574,7 +574,7 @@ private:
                 message = "You took the key. Return to the exit.";
             }
         }
-        void exit(){
+        void openExit(){
             if(map.playerposition() !=Exit) {
                 message = "Go to the exit first.";
             }
@@ -587,20 +587,107 @@ private:
             }
         }
         
+        void readnotes(){
+            if (!symbolsfound && !notefound){
+                message = "You have not collected any clues yet.";
+                return;
+            }
+            std::cout << "\nYour collected clues:\n";
+            if (symbolsfound){
+                std::cout << "Elephant, Horse, Saint Mary.\n";
+            }
+            if (notefound){
+                std::cout << "You found an old and torn note.\n\n"
+                "The Three Guardians\n\n"
+                "The first one carries memories that never fade.\n"
+                "The second one runs where freedom awaits.\n"
+                "The third one watches over theose who have have lost their way.\n\n"
+                "Within their names, three numbers sleep.\n"
+                "Count what is written, not the silence between.\n"
+                "What the guardians conceal, the lock remembers.";
+            }
+            message = "Your collected clues are shown in the terminal.";
+        }
+        
+        void showhint(){
+            if (!lampOn){
+                message = "Find the lamp first and switch on.";
+                return;
+            }
+            int destination;
+            
+            if(!symbolsfound){
+                destination = symbols;
+            }
+            else if (!notefound) {
+                destination = note;
+            }
+            else if (!keyfound) {
+                destination = drawer;
+            }
+            else {
+                destination = Exit;
+            }
+            
+            std::vector<int> route = map.BFS(destination);
+            
+            if(route.empty()) {
+                message = "No route was found.";
+                return;
+            }
+            if(route.size() == 1) {
+                if (destination == drawer) {
+                    if (!draweropen) {
+                        message = "You are at the drawer. Pick 6 to enter the code.";
+                    }
+                    else {
+                        message = "Pick 7 to take the key";
+                    }
+                }
+                else if (destination == Exit) {
+                    message = "Pick 8 to exit.";
+                }
+                else{
+                    message = "Pick 1 to reveal the clue here.";
+                }
+                return;
+            }
+            int current = route[0];
+            int next = route[1];
+            
+            std::string direction;
+            
+            if (next == current - columns) {
+                direction = "up";
+            }
+            else if (next == current + columns) {
+                direction = "down";
+            }
+            else if (next == current - 1) {
+                direction = "left";
+            }
+            else {
+                direction = "right";
+            }
+            
+            int steps = static_cast<int>(route.size()) - 1;
+            
+            std::cout << "\nBFS shortest"<< steps << "steps.\n";
+            message = "move " + direction + " toward your next objective. ";
+        }
 
     
 public:
     void run() {
         std::cout << "L U M E N\n\n"
-        << "You wake up on a cold floor.\n"
-        << "Everything around you is dark.\n"
-        << "You need to find a light.\n";
+        << "Find the light. Solve the riddle and escape.\n";
         
         updatemap();
         std::string choice;
         
-        while (true) {
+        while (!escaped) {
             showMenu();
+            
             if (!std::getline(std::cin, choice)) {
                 return;
             }
@@ -620,42 +707,59 @@ public:
                 message = "Closing Lumen.";
                 updatemap();
                 return;
-            } else {
-                message = "Invalid choice. Enter a number from 1 to 5.";
+                
+            } else if (choice == "6") {
+                openDrawer();
+            }
+            else if (choice == "7") {
+                takekey();
+            }
+            else if (choice == "8") {
+                openExit();
+            }
+            else if (choice == "9") {
+                readnotes();
+            }
+            else if (choice == "10") {
+                showhint();
+            }
+            else {
+                message = "Invalid choice. Enter a number from 1 to 10.";
             }
             updatemap();
         }
+        std::cout << "\nThank you for playing Lumen!\n";
         
     }
 };
 
-int main(){
-    puzzlegraph room;
-    int lamp = room.addpuzzle("turn on lamp");
-    int symbol = room.addpuzzle("discover wall symbol");
-    int drawer = room.addpuzzle("open drawer");
-    int key = room.addpuzzle("collect keys");
-    int exit = room.addpuzzle("unlock exit");
-    
-    room.addconnections(lamp,symbol);
-    room.addconnections(symbol, drawer);
-    room.addconnections(drawer, key);
-    room.addconnections(key, exit);
-    
-    std::cout<< "Lumen puzzle graph:\n";
-    room.print();
-    
-    std::cout << "\nBFS traversal from the lamp:\n";
-    room.BFS(lamp);
-    
-    std::ofstream preview("lumenpreview.html");
-    
-    if(!preview) {
-        std::cerr << "Cannot create lumenpreview.html.\n";
-        return 1;
-    }
-    
-    preview << R"HTML(
+    int main(){
+        puzzlegraph room;
+        int lamp = room.addpuzzle("turn on lamp");
+        int symbol = room.addpuzzle("discover wall symbol");
+        int drawer = room.addpuzzle("open drawer");
+        int key = room.addpuzzle("collect keys");
+        int exit = room.addpuzzle("unlock exit");
+        
+        room.addconnections(lamp,symbol);
+        room.addconnections(symbol, drawer);
+        room.addconnections(drawer, key);
+        room.addconnections(key, exit);
+        
+        std::cout<< "Lumen puzzle graph:\n";
+        room.print();
+        
+        std::cout << "\nBFS traversal from the lamp:\n";
+        room.BFS(lamp);
+        
+        std::ofstream preview("lumenpreview.html");
+        
+        if(!preview) {
+            std::cerr << "Cannot create lumenpreview.html.\n";
+            return 1;
+        }
+        
+        preview << R"HTML(
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -689,15 +793,15 @@ text-align: center;
 </body>
 </html>
 )HTML" ;
-            
-    preview.close();
-    if (!preview) {
-        std::cerr << "Cannot finish saving lumenpreview.html.\n";
-        return 1;
-    }
-    std::cout << "\nOpen lumenpreview.html for updates.\n";
-    Game game;
-    game.run();
-    
-    return 0;
+        
+        preview.close();
+        if (!preview) {
+            std::cerr << "Cannot finish saving lumenpreview.html.\n";
+            return 1;
+        }
+        std::cout << "\nOpen lumenpreview.html for updates.\n";
+        Game game;
+        game.run();
+        
+        return 0;
 };
